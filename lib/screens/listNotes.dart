@@ -8,105 +8,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:ownnotess/models/notesmodel.dart';
-
+import 'package:ownnotess/main.dart';
 import '../controllers/readdata.dart';
 
-class FetchNotes extends StatefulWidget {
-  const FetchNotes({Key? key}) : super(key: key);
+class ReadNotes extends StatefulWidget {
+
 
   @override
-  State<FetchNotes> createState() => _FetchNotes State();
+  State<ReadNotes> createState() => _ReadNotesState();
 }
 
-class _FetchNotes State extends State<FetchNotes> {
-  Query dbref = FirebaseDatabase.instance.ref().child('data');
-  DatabaseReference reference = FirebaseDatabase.instance.ref().child('data');
+class _ReadNotesState extends State<ReadNotes> {
+  bool isLoading=true;
+  var futurereaddata;
+  List<String> list=[];
   @override
-  Widget listItem({required Map data}) {
-    return Container(
-      margin: const EdgeInsets.all(10),
-      padding: const EdgeInsets.all(10),
-      height: 110,
-      color: Colors.amberAccent,
-      child:  const Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            data['body'],
-            style:TextStyle(fontSize: 16, fontWeight: FontWeight.w400),,
-          )
-        ],
-      ),
-    );
+  void initState(){
+    super.initState();
+    futurereaddata=readData();
+  }
+    @override
     Widget build(BuildContext context) {
       return Scaffold(
           appBar: AppBar(
             title: const Text('NoteList'),
           ),
-          body: Container(
-            child: FirebaseAnimatedList(
-                query: dbref,
-                itemBuilder: (BuildContext context, DataSnapshot snapshot, Animation<double> animation, int index){
-                  Map data=snapshot.value as Map;
-                  data['key']=snapshot.key;
+          body: isLoading?CircularProgressIndicator():ListView.builder(
+              padding: const EdgeInsets.all(8),
+              itemCount: list.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                height: 50,
+                child: Center(
+              child: Text(list[index],
+      style: TextStyle(color: Colors.brown),),
 
-                  return listItem(data: data);
-                }
-            ),
-
-          )
-      );
-    }
-
-  }
-}
-
-
-class NoteList extends StatelessWidget {
-Query dbref = FirebaseDatabase.instance.ref().child('data');
-DatabaseReference reference = FirebaseDatabase.instance.ref().child('data');
-  var extractedData;
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('NoteList'),
       ),
-      body: Container(
-              child: FirebaseAnimatedList(
-                query: dbref,
-                itemBuilder: (BuildContext context, DataSnapshot snapshot, Animation<double> animation, int index){
-                  Map data=snapshot.value as Map;
-                  data['key']=snapshot.key;
+                );
+      }
+      ));
 
-                  return listItem(data: data);
-                }
-              ),
-
-      )
-    );
-
-  }
-  readData() async{
-    var datas;
-    var url="https://ownnotes-7c489-default-rtdb.firebaseio.com/"+"data.json";
-    try
-    {
+    }
+    Future<void> readData() async{
+      var url="https://ownnotes-7c489-default-rtdb.firebaseio.com/"+"data.json";
       final response=await http.get(Uri.parse(url));
-      extractedData= jsonDecode(response.body)as Map<String, dynamic>;
-      extractedData=datas;
-      if(extractedData == null){
+      final futurereaddata=json.decode(response.body) as Map<String, dynamic>;
+      if(futurereaddata == null){
         return ;
       }
-      print(extractedData);
-
-    }catch(error){
-      throw error;
+      futurereaddata.forEach((id, data) {
+        list.add(data["body"]);
+        list.add(data["title"]);
+      });
+        setState(() {
+          isLoading =false;
+        });
     }
-
   }
-}
 
 
 

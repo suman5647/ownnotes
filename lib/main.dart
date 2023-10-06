@@ -10,7 +10,7 @@ import 'package:ownnotess/screens/listNotes.dart';
 import 'package:ownnotess/screens/setting.dart';
 import 'package:ownnotess/utils/dark_mode.dart';
 import 'package:ownnotess/utils/root.dart';
-
+import 'package:ownnotess/models/notesmodel.dart';
 import 'controllers/readdata.dart';
 
 
@@ -22,11 +22,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
-  void initState(){
-    super.initState();
-    readData();
-  }
+  // late Future<Notesmodel>futurereaddata;
+  // @override
+  // void initState(){
+  //   super.initState();
+  //   futurereaddata=readData();
+  // }
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -37,7 +38,7 @@ class _MyAppState extends State<MyApp> {
         '/AddNotePage': (context) => AddNotePage(),
         '/Setting': (context) => Setting(),
         '/DarkMode': (context) => DarkMode(),
-        '/NoteList': (context) => NoteList(),
+        '/NoteList': (context) => ReadNotes(),
 
       },
     );
